@@ -1,0 +1,35 @@
+{
+  "name": "monitoreo-escritorio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Dashboard de escritorio para monitoreo ambiental IoT (ESP32 + ThingsBoard)",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k -n VITE,ELECTRON -c green,blue \"npm:dev:vite\" \"npm:dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on tcp:5173 && cross-env NODE_ENV=development electron .",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "npm run build && electron ."
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@fontsource/inter": "^5.1.0",
+    "lucide-react": "^0.456.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.13.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
+  }
+}
