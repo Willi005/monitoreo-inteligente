@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    @apply font-sans text-white/90 antialiased;
+    /* Deep multi-stop gradient base; color blobs are layered in .app-bg */
+    background-color: #070a12;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Allow text selection inside content areas (chat, inputs, values) */
+  input,
+  textarea,
+  [data-selectable] {
+    user-select: text;
+  }
+}
+
+@layer components {
+  /* ---- Glass surface system (visionOS / Apple inspired) ---- */
+  .glass {
+    @apply relative rounded-4xl border border-white/10 bg-white/[0.06] shadow-glass backdrop-blur-2xl;
+    background-image: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+  }
+
+  /* subtle top highlight that reads as a light edge on glass */
+  .glass::before {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-4xl;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.35),
+      transparent
+    );
+  }
+
+  .glass-hover {
+    @apply transition-all duration-300 ease-out hover:bg-white/[0.09] hover:border-white/20;
+  }
+
+  .glass-inset {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04];
+  }
+
+  /* Draggable window region for the frameless titlebar */
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Tabular figures keep numeric readouts from shifting width */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ---- Custom scrollbar (thin, glassy) ---- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: content-box;
+}
