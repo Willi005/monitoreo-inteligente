@@ -25,6 +25,8 @@ import {
   KeyRound,
   Bot,
   RefreshCw,
+  ChevronDown,
+  Cpu,
 } from 'lucide-react'
 
 const MAP = {
@@ -54,6 +56,8 @@ const MAP = {
   key: KeyRound,
   bot: Bot,
   refresh: RefreshCw,
+  'chevron-down': ChevronDown,
+  cpu: Cpu,
 }
 
 export default function Icon({ name, className = '', ...props }) {

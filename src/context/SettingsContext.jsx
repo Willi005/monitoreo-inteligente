@@ -11,9 +11,13 @@ const DEFAULTS = {
   deviceName: 'monitoreo-escritorio',
   deviceId: '',
   deviceAccessToken: '',
-  // Anthropic: prefer env var, fall back to stored field.
+  // ---- Asistente de IA ----
+  // Modelo activo (ver src/lib/models.js). Por defecto Gemini 2.5 Flash.
+  aiModelId: 'gemini-2.5-flash',
+  // Las API keys se leen de variables de entorno o se ingresan en la app.
+  // Nunca deben quedar escritas en el código fuente.
+  openrouterApiKey: import.meta.env?.VITE_OPENROUTER_API_KEY || '',
   anthropicApiKey: import.meta.env?.VITE_ANTHROPIC_API_KEY || '',
-  anthropicModel: 'claude-sonnet-4-6',
 }
 
 function load() {

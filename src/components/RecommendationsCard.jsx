@@ -5,6 +5,7 @@ import Markdown from './Markdown'
 import { useSettings } from '../context/SettingsContext'
 import { useTelemetry } from '../context/TelemetryContext'
 import { generateRecommendations } from '../lib/ai'
+import { resolveModel } from '../lib/models'
 
 export default function RecommendationsCard({ className = '', onOpenAssistant }) {
   const { settings } = useSettings()
@@ -13,7 +14,8 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const hasKey = Boolean(settings.anthropicApiKey)
+  const active = resolveModel(settings)
+  const hasKey = Boolean(active.apiKey)
   const hasData = lastUpdate > 0
 
   const run = useCallback(async () => {
@@ -21,8 +23,9 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
     setError('')
     try {
       const out = await generateRecommendations({
-        apiKey: settings.anthropicApiKey,
-        model: settings.anthropicModel,
+        provider: active.provider,
+        apiKey: active.apiKey,
+        model: active.model,
         values,
       })
       setText(out)
@@ -31,7 +34,7 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
     } finally {
       setLoading(false)
     }
-  }, [settings.anthropicApiKey, settings.anthropicModel, values])
+  }, [active.provider, active.apiKey, active.model, values])
 
   return (
     <GlassCard className={`flex flex-col p-6 ${className}`}>
@@ -58,7 +61,7 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
       <div className="mt-4 min-h-0 flex-1 overflow-y-auto" data-selectable>
         {!hasKey ? (
           <p className="text-sm text-white/45">
-            Agrega tu API key de Anthropic en Configuración para recibir recomendaciones inteligentes.
+            Agrega la API key del modelo seleccionado en Configuración para recibir recomendaciones inteligentes.
           </p>
         ) : !hasData ? (
           <p className="text-sm text-white/45">Esperando lecturas de sensores para analizar el entorno…</p>
