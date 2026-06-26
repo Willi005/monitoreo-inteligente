@@ -104,13 +104,13 @@ export default function Settings({ onConnected }) {
               <input className={inputCls} value={form.tbHost} onChange={set('tbHost')} placeholder="http://200.13.5.20:8080" />
             </Field>
             <Field label="Usuario">
-              <input className={inputCls} value={form.tbUsername} onChange={set('tbUsername')} autoComplete="username" />
+              <input className={inputCls} value={form.tbUsername} onChange={set('tbUsername')} autoComplete="username" placeholder="Ingresa tu correo electrónico" />
             </Field>
             <Field label="Contraseña">
               <SecretInput value={form.tbPassword} onChange={set('tbPassword')} placeholder="••••••••" />
             </Field>
             <Field label="Nombre del dispositivo">
-              <input className={inputCls} value={form.deviceName} onChange={set('deviceName')} placeholder="monitoreo-escritorio" />
+              <input className={inputCls} value={form.deviceName} onChange={set('deviceName')} placeholder="Nombre del dispositivo en ThingsBoard" />
             </Field>
 
             <button
@@ -127,7 +127,7 @@ export default function Settings({ onConnected }) {
                 className={`${inputCls} h-20 resize-none font-mono text-[11px] leading-relaxed`}
                 value={form.jwt}
                 onChange={set('jwt')}
-                placeholder="eyJhbGciOi…"
+                placeholder="Se completa automáticamente al conectar. También puedes pegarlo manualmente"
                 data-selectable
               />
             </Field>
