@@ -3,6 +3,7 @@ import PageHeader from '../components/PageHeader'
 import GlassCard from '../components/GlassCard'
 import Icon from '../components/Icon'
 import { useSettings } from '../context/SettingsContext'
+import ModelSelector from '../components/ModelSelector'
 
 function Field({ label, hint, children }) {
   return (
@@ -75,7 +76,9 @@ export default function Settings({ onConnected }) {
   }
 
   const handleSave = () => {
-    update(form)
+    // aiModelId is applied instantly by ModelSelector; don't let the form's
+    // stale value clobber it on save.
+    update({ ...form, aiModelId: settings.aiModelId })
     setResult({ ok: true, message: 'Configuración guardada.' })
   }
 
@@ -143,20 +146,20 @@ export default function Settings({ onConnected }) {
                 <Icon name="sparkles" className="h-[18px] w-[18px] text-accent-soft" />
               </span>
               <div>
-                <h3 className="text-base font-semibold text-white">Asistente de IA (Anthropic)</h3>
-                <p className="text-xs text-white/45">Recomendaciones y chat</p>
+                <h3 className="text-base font-semibold text-white">Asistente de IA</h3>
+                <p className="text-xs text-white/45">Modelo, recomendaciones y chat</p>
               </div>
             </div>
 
             <div className="space-y-4">
-              <Field
-                label="API Key"
-                hint="Se puede definir también con la variable de entorno VITE_ANTHROPIC_API_KEY. Nunca se envía a ThingsBoard."
-              >
-                <SecretInput value={form.anthropicApiKey} onChange={set('anthropicApiKey')} placeholder="sk-ant-…" />
+              <Field label="Modelo activo" hint="También puedes cambiarlo desde el selector en la pantalla del Asistente.">
+                <ModelSelector block />
               </Field>
-              <Field label="Modelo">
-                <input className={inputCls} value={form.anthropicModel} onChange={set('anthropicModel')} placeholder="claude-sonnet-4-6" />
+              <Field label="API Key de OpenRouter" hint="Para los modelos Gemini, GPT y Llama.">
+                <SecretInput value={form.openrouterApiKey} onChange={set('openrouterApiKey')} placeholder="sk-or-v1-…" />
+              </Field>
+              <Field label="API Key de Anthropic" hint="Solo para los modelos Claude. Nunca se envía a ThingsBoard.">
+                <SecretInput value={form.anthropicApiKey} onChange={set('anthropicApiKey')} placeholder="sk-ant-…" />
               </Field>
             </div>
           </GlassCard>

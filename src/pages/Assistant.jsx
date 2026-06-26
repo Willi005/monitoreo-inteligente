@@ -3,9 +3,11 @@ import PageHeader from '../components/PageHeader'
 import GlassCard from '../components/GlassCard'
 import Icon from '../components/Icon'
 import Markdown from '../components/Markdown'
+import ModelSelector from '../components/ModelSelector'
 import { useSettings } from '../context/SettingsContext'
 import { useTelemetry } from '../context/TelemetryContext'
 import { chat } from '../lib/ai'
+import { resolveModel } from '../lib/models'
 
 const SUGGESTIONS = [
   '¿Cómo puedo mejorar la calidad del aire ahora mismo?',
@@ -23,7 +25,8 @@ export default function Assistant() {
   const [error, setError] = useState('')
   const scrollRef = useRef(null)
 
-  const hasKey = Boolean(settings.anthropicApiKey)
+  const active = resolveModel(settings)
+  const hasKey = Boolean(active.apiKey)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
@@ -40,8 +43,9 @@ export default function Assistant() {
       setLoading(true)
       try {
         const reply = await chat({
-          apiKey: settings.anthropicApiKey,
-          model: settings.anthropicModel,
+          provider: active.provider,
+          apiKey: active.apiKey,
+          model: active.model,
           values,
           messages: next,
         })
@@ -52,7 +56,7 @@ export default function Assistant() {
         setLoading(false)
       }
     },
-    [input, loading, messages, settings.anthropicApiKey, settings.anthropicModel, values]
+    [input, loading, messages, active.provider, active.apiKey, active.model, values]
   )
 
   const onKeyDown = (e) => {
@@ -64,10 +68,9 @@ export default function Assistant() {
 
   return (
     <>
-      <PageHeader
-        title="Asistente IA"
-        subtitle={`Powered by ${settings.anthropicModel} · contexto ambiental en vivo`}
-      />
+      <PageHeader title="Asistente IA" subtitle={`${active.hint} · contexto ambiental en vivo`}>
+        <ModelSelector />
+      </PageHeader>
 
       <GlassCard className="flex h-[calc(100vh-188px)] flex-col overflow-hidden">
         {/* live context strip */}
