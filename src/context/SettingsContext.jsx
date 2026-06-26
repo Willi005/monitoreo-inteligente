@@ -8,7 +8,7 @@ const DEFAULTS = {
   tbUsername: '',
   tbPassword: '',
   jwt: '',
-  deviceName: 'monitoreo-escritorio',
+  deviceName: '',
   deviceId: '',
   deviceAccessToken: '',
   // ---- Asistente de IA ----
