@@ -20,6 +20,12 @@ const DEFAULTS = {
   anthropicApiKey: import.meta.env?.VITE_ANTHROPIC_API_KEY || '',
   // Alertas automáticas cuando una métrica llega a nivel alto/crítico.
   alertsEnabled: true,
+  // ---- Apariencia ----
+  // Tema visual: 'dark' (por defecto) o 'light' (glass blanco).
+  theme: 'dark',
+  // Claves de sensores deshabilitados: su tarjeta del Dashboard se muestra en
+  // estado pausado y no dispara alertas.
+  disabledSensors: [],
 }
 
 function load() {

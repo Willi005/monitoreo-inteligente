@@ -67,7 +67,6 @@ function Toast({ alert, onDismiss, onOpenAssistant }) {
           )}
         </div>
       </div>
-      <span className="absolute inset-x-0 bottom-0 h-0.5" style={{ backgroundColor: `${color}66` }} />
     </GlassCard>
   )
 }

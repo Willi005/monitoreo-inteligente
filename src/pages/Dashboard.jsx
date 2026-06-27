@@ -6,9 +6,12 @@ import PresenceCard from '../components/PresenceCard'
 import RecommendationsCard from '../components/RecommendationsCard'
 import NotConfigured from '../components/NotConfigured'
 import { useTelemetry } from '../context/TelemetryContext'
+import { useSettings } from '../context/SettingsContext'
 
 export default function Dashboard({ onOpenAssistant, onNavigate }) {
   const { values, history, presence, isConfigured, lastUpdate } = useTelemetry()
+  const { settings } = useSettings()
+  const off = (key) => (settings.disabledSensors || []).includes(key)
 
   const updated = lastUpdate
     ? new Date(lastUpdate).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -74,14 +77,15 @@ export default function Dashboard({ onOpenAssistant, onNavigate }) {
           history={history.pm25}
           large
           paused={paused}
+          disabled={off('pm25')}
           className="lg:col-span-2 lg:row-span-2 lg:col-start-1 lg:row-start-3"
         />
 
         {/* Secondary sensors — small blocks */}
-        <SensorCard sensorKey="temperatura" value={values.temperatura} history={history.temperatura} paused={paused} className="lg:col-start-2 lg:row-start-1" />
-        <SensorCard sensorKey="humedad" value={values.humedad} history={history.humedad} paused={paused} className="lg:col-start-2 lg:row-start-2" />
-        <SensorCard sensorKey="luz" value={values.luz} history={history.luz} paused={paused} className="lg:col-start-3 lg:row-start-4" />
-        <SensorCard sensorKey="ruido" value={values.ruido} history={history.ruido} paused={paused} className="lg:col-start-4 lg:row-start-4" />
+        <SensorCard sensorKey="temperatura" value={values.temperatura} history={history.temperatura} paused={paused} disabled={off('temperatura')} className="lg:col-start-2 lg:row-start-1" />
+        <SensorCard sensorKey="humedad" value={values.humedad} history={history.humedad} paused={paused} disabled={off('humedad')} className="lg:col-start-2 lg:row-start-2" />
+        <SensorCard sensorKey="luz" value={values.luz} history={history.luz} paused={paused} disabled={off('luz')} className="lg:col-start-3 lg:row-start-4" />
+        <SensorCard sensorKey="ruido" value={values.ruido} history={history.ruido} paused={paused} disabled={off('ruido')} className="lg:col-start-4 lg:row-start-4" />
 
         {/* AI assistant — lg: tallest dominant block (right); sm: full-width */}
         <RecommendationsCard
