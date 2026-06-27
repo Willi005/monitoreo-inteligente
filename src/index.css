@@ -38,7 +38,7 @@
 @layer components {
   /* ---- Glass surface system (visionOS / Apple inspired) ---- */
   .glass {
-    @apply relative rounded-4xl border border-white/10 bg-white/[0.06] shadow-glass backdrop-blur-2xl;
+    @apply relative rounded-4xl border border-white/10 bg-white/[0.06] shadow-glass backdrop-blur-xl;
     background-image: linear-gradient(
       135deg,
       rgba(255, 255, 255, 0.08) 0%,
