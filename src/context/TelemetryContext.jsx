@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react'
 import { useSettings } from './SettingsContext'
 import { TbWebSocket } from '../lib/thingsboardWs'
 import { getLatest } from '../lib/thingsboard'
@@ -17,18 +25,51 @@ export function TelemetryProvider({ children }) {
   const [status, setStatus] = useState('idle')
   const wsRef = useRef(null)
 
-  const ingest = useCallback((parsed) => {
-    setLatest((prev) => ({ ...prev, ...parsed }))
+  // Coalesce incoming WS frames into a single state update per animation frame
+  // so bursts of telemetry don't trigger a render storm.
+  const bufferRef = useRef({}) // { key: [{ ts, value }] }
+  const rafRef = useRef(null)
+
+  const flush = useCallback(() => {
+    rafRef.current = null
+    const buffer = bufferRef.current
+    bufferRef.current = {}
+    const keys = Object.keys(buffer)
+    if (!keys.length) return
+
+    setLatest((prev) => {
+      const next = { ...prev }
+      for (const key of keys) {
+        const points = buffer[key]
+        next[key] = points[points.length - 1]
+      }
+      return next
+    })
     setHistory((prev) => {
       const next = { ...prev }
-      for (const [key, { ts, value }] of Object.entries(parsed)) {
-        if (typeof value !== 'number') continue
-        const arr = next[key] ? [...next[key], { ts, value }] : [{ ts, value }]
-        next[key] = arr.slice(-MAX_POINTS)
+      for (const key of keys) {
+        const points = buffer[key].filter((p) => typeof p.value === 'number')
+        if (!points.length) continue
+        next[key] = [...(next[key] || []), ...points].slice(-MAX_POINTS)
       }
       return next
     })
   }, [])
+
+  const ingest = useCallback(
+    (parsed) => {
+      const buffer = bufferRef.current
+      for (const [key, point] of Object.entries(parsed)) {
+        ;(buffer[key] ||= []).push(point)
+      }
+      if (rafRef.current == null) {
+        rafRef.current = requestAnimationFrame(flush)
+      }
+    },
+    [flush]
+  )
+
+  useEffect(() => () => rafRef.current && cancelAnimationFrame(rafRef.current), [])
 
   const { tbHost, jwt, deviceId } = settings
 
@@ -64,24 +105,23 @@ export function TelemetryProvider({ children }) {
     }
   }, [isConfigured, tbHost, jwt, deviceId, ingest])
 
-  const presence = derivePresence(latest.distancia?.value)
-  // ts of the most recent reading across all keys
-  const lastUpdate = Object.values(latest).reduce(
-    (max, v) => (v?.ts && v.ts > max ? v.ts : max),
-    0
+  // Derived values recomputed only when `latest` changes (once per frame).
+  const { values, presence, lastUpdate } = useMemo(() => {
+    const vals = {}
+    let last = 0
+    for (const [k, v] of Object.entries(latest)) {
+      vals[k] = v?.value
+      if (v?.ts && v.ts > last) last = v.ts
+    }
+    return { values: vals, presence: derivePresence(latest.distancia?.value), lastUpdate: last }
+  }, [latest])
+
+  const ctxValue = useMemo(
+    () => ({ latest, values, history, status, presence, lastUpdate, isConfigured }),
+    [latest, values, history, status, presence, lastUpdate, isConfigured]
   )
 
-  const values = Object.fromEntries(
-    Object.entries(latest).map(([k, v]) => [k, v?.value])
-  )
-
-  return (
-    <TelemetryContext.Provider
-      value={{ latest, values, history, status, presence, lastUpdate, isConfigured }}
-    >
-      {children}
-    </TelemetryContext.Provider>
-  )
+  return <TelemetryContext.Provider value={ctxValue}>{children}</TelemetryContext.Provider>
 }
 
 export function useTelemetry() {

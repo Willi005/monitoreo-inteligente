@@ -1,9 +1,12 @@
+import { memo } from 'react'
 import { AreaChart, Area, ResponsiveContainer, YAxis, Tooltip } from 'recharts'
 import ChartTooltip from './ChartTooltip'
 
 // Compact sparkline-style area chart for dashboard cards.
 // Transparent background to blend with the glass surface.
-export default function MiniChart({ data, color = '#409CFF', unit = '', height = '100%' }) {
+// Memoized: only re-renders when its own series/colour changes, not on every
+// telemetry tick for unrelated sensors.
+function MiniChart({ data, color = '#409CFF', unit = '', height = '100%' }) {
   const id = `grad-${color.replace('#', '')}`
   if (!data || data.length < 2) {
     return (
@@ -42,3 +45,5 @@ export default function MiniChart({ data, color = '#409CFF', unit = '', height =
     </ResponsiveContainer>
   )
 }
+
+export default memo(MiniChart)
