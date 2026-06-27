@@ -29,16 +29,16 @@ export default function TitleBar() {
 
   return (
     <header className="drag-region flex h-11 shrink-0 items-center justify-between border-b border-white/5 px-4">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent/20">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-accent/20">
           <Icon name="activity" className="h-3.5 w-3.5 text-accent-soft" />
         </div>
-        <span className="text-[13px] font-semibold tracking-tight text-white/85">
+        <span className="truncate text-[13px] font-semibold tracking-tight text-white/85">
           Monitoreo Escritorio
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <div
           className="no-drag flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium"
           style={{
@@ -48,8 +48,8 @@ export default function TitleBar() {
           }}
           title={lastUpdate ? `Última lectura: ${new Date(lastUpdate).toLocaleString('es-CL')}` : ''}
         >
-          <Icon name={meta.icon} className="h-3 w-3" />
-          {meta.label}
+          <Icon name={meta.icon} className="h-3 w-3 shrink-0" />
+          <span className="hidden sm:inline">{meta.label}</span>
           {status === 'open' && (
             <span className="ml-0.5 h-1.5 w-1.5 animate-pulse-soft rounded-full bg-status-good" />
           )}

@@ -29,7 +29,7 @@ function SensorCard({ sensorKey, value, history = [], className = '', large = fa
       </div>
 
       <div className="mt-4 flex shrink-0 items-end gap-1.5" data-selectable>
-        <span className={`tnum font-semibold tracking-tight ${large ? 'text-5xl' : 'text-3xl'} text-white`}>
+        <span className={`tnum font-semibold tracking-tight ${large ? 'text-4xl lg:text-5xl' : 'text-2xl sm:text-3xl'} text-white`}>
           {formatValue(sensorKey, value)}
         </span>
         {sensor.unit && <span className="mb-1 text-sm text-white/45">{sensor.unit}</span>}
@@ -39,7 +39,7 @@ function SensorCard({ sensorKey, value, history = [], className = '', large = fa
         <MiniChart data={history} color={level.color} unit={sensor.unit} />
       </div>
 
-      {large && <p className="mt-2 shrink-0 text-[11px] leading-relaxed text-white/35">{sensor.hint}</p>}
+      {large && <p className="mt-2 hidden shrink-0 text-[11px] leading-relaxed text-white/35 lg:block">{sensor.hint}</p>}
     </GlassCard>
   )
 }
