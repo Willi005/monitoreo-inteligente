@@ -84,6 +84,7 @@ export function AlertsProvider({ children }) {
             values: snapshot,
             sensorKey,
             levelLabel: level.label,
+            disabled: settings.disabledSensors || [],
           })
         } catch {
           /* se mantiene el consejo de respaldo */

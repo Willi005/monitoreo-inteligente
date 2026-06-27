@@ -27,6 +27,7 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
         apiKey: active.apiKey,
         model: active.model,
         values,
+        disabled: settings.disabledSensors || [],
       })
       setText(out)
     } catch (e) {
@@ -34,7 +35,7 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
     } finally {
       setLoading(false)
     }
-  }, [active.provider, active.apiKey, active.model, values])
+  }, [active.provider, active.apiKey, active.model, values, settings.disabledSensors])
 
   return (
     <GlassCard className={`flex flex-col overflow-hidden p-6 ${className}`}>

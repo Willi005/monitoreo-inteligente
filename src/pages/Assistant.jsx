@@ -48,6 +48,7 @@ export default function Assistant() {
           model: active.model,
           values,
           messages: next,
+          disabled: settings.disabledSensors || [],
         })
         setMessages((m) => [...m, { role: 'assistant', content: reply }])
       } catch (e) {
@@ -56,7 +57,7 @@ export default function Assistant() {
         setLoading(false)
       }
     },
-    [input, loading, messages, active.provider, active.apiKey, active.model, values]
+    [input, loading, messages, active.provider, active.apiKey, active.model, values, settings.disabledSensors]
   )
 
   const onKeyDown = (e) => {
