@@ -4,8 +4,24 @@ import GlassCard from './GlassCard'
 import Icon from './Icon'
 import ChartTooltip from './ChartTooltip'
 import { SENSORS } from '../lib/sensors'
+import { useSettings } from '../context/SettingsContext'
 
-const AXIS = { fill: 'rgba(255,255,255,0.4)', fontSize: 11 }
+// Colores de ejes/rejilla por tema. Recharts los recibe como props inline, así
+// que no los alcanza la inversión de utilidades; se eligen según el tema.
+const CHART_COLORS = {
+  dark: {
+    axis: 'rgba(255,255,255,0.4)',
+    grid: 'rgba(255,255,255,0.06)',
+    axisLine: 'rgba(255,255,255,0.08)',
+    cursor: 'rgba(255,255,255,0.15)',
+  },
+  light: {
+    axis: 'rgba(15,23,42,0.55)',
+    grid: 'rgba(15,23,42,0.08)',
+    axisLine: 'rgba(15,23,42,0.14)',
+    cursor: 'rgba(15,23,42,0.2)',
+  },
+}
 
 function ChartSkeleton() {
   return (
@@ -30,6 +46,9 @@ function ChartSkeleton() {
 
 function HistoryChart({ sensorKey, data = [], color = '#409CFF', spanDays = 1, loading = false }) {
   const sensor = SENSORS[sensorKey]
+  const { settings } = useSettings()
+  const c = settings.theme === 'light' ? CHART_COLORS.light : CHART_COLORS.dark
+  const axisTick = { fill: c.axis, fontSize: 11 }
   const fmtTime = (ts) =>
     spanDays > 2
       ? new Date(ts).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' })
@@ -57,19 +76,19 @@ function HistoryChart({ sensorKey, data = [], color = '#409CFF', spanDays = 1, l
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 6, right: 8, bottom: 0, left: -12 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <CartesianGrid stroke={c.grid} vertical={false} />
               <XAxis
                 dataKey="ts"
                 tickFormatter={fmtTime}
-                tick={AXIS}
-                axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+                tick={axisTick}
+                axisLine={{ stroke: c.axisLine }}
                 tickLine={false}
                 minTickGap={40}
               />
-              <YAxis tick={AXIS} axisLine={false} tickLine={false} width={44} />
+              <YAxis tick={axisTick} axisLine={false} tickLine={false} width={44} />
               <Tooltip
                 content={<ChartTooltip unit={sensor.unit} labelFormatter={(ts) => new Date(ts).toLocaleString('es-CL')} />}
-                cursor={{ stroke: 'rgba(255,255,255,0.15)' }}
+                cursor={{ stroke: c.cursor }}
               />
               <Line
                 type="monotone"

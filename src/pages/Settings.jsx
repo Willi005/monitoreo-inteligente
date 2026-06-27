@@ -4,6 +4,7 @@ import GlassCard from '../components/GlassCard'
 import Icon from '../components/Icon'
 import { useSettings } from '../context/SettingsContext'
 import ModelSelector from '../components/ModelSelector'
+import Toggle from '../components/Toggle'
 
 function Field({ label, hint, children }) {
   return (
@@ -17,26 +18,6 @@ function Field({ label, hint, children }) {
 
 const inputCls =
   'w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white/90 placeholder-white/30 outline-none transition-colors focus:border-accent/60'
-
-function Toggle({ checked, onChange }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-        checked ? 'bg-accent' : 'bg-white/15'
-      }`}
-    >
-      <span
-        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-5' : 'translate-x-0'
-        }`}
-      />
-    </button>
-  )
-}
 
 function SecretInput({ value, onChange, placeholder }) {
   const [show, setShow] = useState(false)

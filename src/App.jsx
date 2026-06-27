@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AppBackground from './components/AppBackground'
 import TitleBar from './components/TitleBar'
 import Sidebar from './components/Sidebar'
@@ -7,9 +7,17 @@ import Dashboard from './pages/Dashboard'
 import History from './pages/History'
 import Assistant from './pages/Assistant'
 import Settings from './pages/Settings'
+import Appearance from './pages/Appearance'
+import { useSettings } from './context/SettingsContext'
 
 export default function App() {
   const [page, setPage] = useState('dashboard')
+  const { settings } = useSettings()
+
+  // Aplica el tema seleccionado al documento (dirige los overrides de CSS).
+  useEffect(() => {
+    document.documentElement.dataset.theme = settings.theme === 'light' ? 'light' : 'dark'
+  }, [settings.theme])
 
   return (
     <div className="flex h-screen flex-col overflow-hidden text-white">
@@ -31,6 +39,7 @@ export default function App() {
             )}
             {page === 'history' && <History onNavigate={setPage} />}
             {page === 'assistant' && <Assistant onNavigate={setPage} />}
+            {page === 'appearance' && <Appearance />}
             {page === 'settings' && <Settings onConnected={() => setPage('dashboard')} />}
           </div>
         </main>

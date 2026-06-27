@@ -101,8 +101,10 @@ export function AlertsProvider({ children }) {
     const firstRun = !seeded.current
     let sawData = false
     const now = Date.now()
+    const disabled = settings.disabledSensors || []
 
     for (const key of WATCH_KEYS) {
+      if (disabled.includes(key)) continue // sensor apagado en Apariencia
       const v = values[key]
       if (v == null) continue
       sawData = true
@@ -125,7 +127,7 @@ export function AlertsProvider({ children }) {
     }
 
     if (firstRun && sawData) seeded.current = true
-  }, [values, presence, settings.alertsEnabled, triggerAlert])
+  }, [values, presence, settings.alertsEnabled, settings.disabledSensors, triggerAlert])
 
   return <AlertsContext.Provider value={{ alerts, dismiss }}>{children}</AlertsContext.Provider>
 }

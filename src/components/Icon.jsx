@@ -13,6 +13,7 @@ import {
   Minus,
   Square,
   X,
+  Check,
   Send,
   UserCheck,
   UserX,
@@ -27,6 +28,11 @@ import {
   RefreshCw,
   ChevronDown,
   Cpu,
+  Palette,
+  Moon,
+  Power,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 
 const MAP = {
@@ -44,6 +50,7 @@ const MAP = {
   minus: Minus,
   square: Square,
   x: X,
+  'check-mark': Check,
   send: Send,
   'user-check': UserCheck,
   'user-x': UserX,
@@ -58,6 +65,11 @@ const MAP = {
   refresh: RefreshCw,
   'chevron-down': ChevronDown,
   cpu: Cpu,
+  palette: Palette,
+  moon: Moon,
+  power: Power,
+  eye: Eye,
+  'eye-off': EyeOff,
 }
 
 export default function Icon({ name, className = '', ...props }) {

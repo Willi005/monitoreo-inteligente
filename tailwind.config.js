@@ -15,6 +15,10 @@ export default {
         ],
       },
       colors: {
+        // `white` resuelve a una variable CSS para soportar tema claro/oscuro:
+        // en modo claro --w pasa a un tono tinta (slate-900), así todas las
+        // utilidades text-white / bg-white / border-white se invierten solas.
+        white: 'rgb(var(--w, 255 255 255) / <alpha-value>)',
         // Apple system electric blue accent
         accent: {
           DEFAULT: '#0A84FF',
