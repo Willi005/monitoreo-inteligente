@@ -20,21 +20,7 @@ function PresenceCard({ present, distance, className = '' }) {
         className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-[90px] transition-colors duration-700"
         style={{ backgroundColor: `${color}40` }}
       />
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-white/55">Presencia</span>
-        <span
-          className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
-          style={{ color, backgroundColor: `${color}1A`, border: `1px solid ${color}33` }}
-        >
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${present ? 'animate-pulse-soft' : ''}`}
-            style={{ backgroundColor: color }}
-          />
-          {present ? 'Activo' : unknown ? '—' : 'Inactivo'}
-        </span>
-      </div>
-
-      <div className="relative flex flex-col items-center justify-center py-6 text-center">
+      <div className="relative flex flex-1 flex-col items-center justify-center py-6 text-center">
         <span
           className="flex h-24 w-24 items-center justify-center rounded-full ring-1 transition-all duration-500"
           style={{

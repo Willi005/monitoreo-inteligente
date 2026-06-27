@@ -9,12 +9,15 @@
 //  - Ruido: WHO Environmental Noise Guidelines 2018 (KY-037, amplitud cruda
 //    calibrada en el entorno del prototipo).
 
+// `color` es el tono de baja saturación para tema oscuro; `light` es la variante
+// más oscura/saturada para tema claro, donde los tonos pastel no alcanzan el
+// contraste mínimo (≥4.5:1) en las etiquetas pequeñas.
 export const LEVELS = {
-  good: { id: 'good', label: 'Bueno', color: '#5BD6A6', text: 'text-status-good' },
-  moderate: { id: 'moderate', label: 'Moderado', color: '#E8C468', text: 'text-status-moderate' },
-  bad: { id: 'bad', label: 'Malo', color: '#E88A8A', text: 'text-status-bad' },
-  severe: { id: 'severe', label: 'Crítico', color: '#E06B9A', text: 'text-status-severe' },
-  unknown: { id: 'unknown', label: 'Sin datos', color: '#8A93A6', text: 'text-white/40' },
+  good: { id: 'good', label: 'Bueno', color: '#5BD6A6', light: '#047857', text: 'text-status-good' },
+  moderate: { id: 'moderate', label: 'Moderado', color: '#E8C468', light: '#B45309', text: 'text-status-moderate' },
+  bad: { id: 'bad', label: 'Malo', color: '#E88A8A', light: '#DC2626', text: 'text-status-bad' },
+  severe: { id: 'severe', label: 'Crítico', color: '#E06B9A', light: '#BE185D', text: 'text-status-severe' },
+  unknown: { id: 'unknown', label: 'Sin datos', color: '#8A93A6', light: '#475569', text: 'text-white/40' },
 }
 
 // Devuelve un nivel (con su color) y, opcionalmente, una etiqueta específica

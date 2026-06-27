@@ -160,6 +160,20 @@
   color: #fff;
 }
 
+/* Texto secundario en claro: los tonos tenues (text-white/30…/60) pierden
+   contraste sobre el vidrio blanco. Se suben a opacidades efectivas mayores
+   manteniendo la jerarquía respecto al texto principal (/70…/100). */
+[data-theme='light'] .text-white\/30 { color: rgb(15 23 42 / 0.52); }
+[data-theme='light'] .text-white\/35 { color: rgb(15 23 42 / 0.55); }
+[data-theme='light'] .text-white\/40 { color: rgb(15 23 42 / 0.58); }
+[data-theme='light'] .text-white\/45 { color: rgb(15 23 42 / 0.6); }
+[data-theme='light'] .text-white\/50 { color: rgb(15 23 42 / 0.64); }
+[data-theme='light'] .text-white\/55 { color: rgb(15 23 42 / 0.67); }
+[data-theme='light'] .text-white\/60 { color: rgb(15 23 42 / 0.7); }
+/* Y el principal un punto más firme para una lectura nítida. */
+[data-theme='light'] .text-white\/70 { color: rgb(15 23 42 / 0.78); }
+[data-theme='light'] .text-white\/75 { color: rgb(15 23 42 / 0.82); }
+
 /* Barra de scroll en claro */
 [data-theme='light'] ::-webkit-scrollbar-thumb {
   background: rgb(15 23 42 / 0.18);
