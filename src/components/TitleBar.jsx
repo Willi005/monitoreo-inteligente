@@ -1,6 +1,8 @@
 import Icon from './Icon'
 import { useTelemetry } from '../context/TelemetryContext'
 import { useSettings } from '../context/SettingsContext'
+import logoLight from '../assets/logo-light.svg'
+import logoDark from '../assets/logo-dark.svg'
 
 // Cada estado lleva color para tema oscuro (menta/ámbar de baja saturación) y
 // una variante para tema claro: más oscura y saturada para alcanzar el
@@ -40,9 +42,12 @@ export default function TitleBar() {
   return (
     <header className="drag-region flex h-11 shrink-0 items-center justify-between border-b border-white/5 px-4">
       <div className="flex min-w-0 items-center gap-2.5">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-accent/20">
-          <Icon name="activity" className="h-3.5 w-3.5 text-accent-soft" />
-        </div>
+        <img
+          src={light ? logoLight : logoDark}
+          alt="DeskSense"
+          draggable={false}
+          className="h-6 w-6 shrink-0 rounded-[7px]"
+        />
         <span className="truncate text-[13px] font-semibold tracking-tight text-white/85">
           DeskSense
         </span>
