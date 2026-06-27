@@ -44,7 +44,7 @@ export default function TitleBar() {
           <Icon name="activity" className="h-3.5 w-3.5 text-accent-soft" />
         </div>
         <span className="truncate text-[13px] font-semibold tracking-tight text-white/85">
-          Monitoreo Escritorio
+          DeskSense
         </span>
       </div>
 

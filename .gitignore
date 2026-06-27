@@ -5,3 +5,8 @@ dist-electron
 .env.local
 *.log
 .DS_Store
+
+# Empaquetado (electron-builder) e iconos generados (se regeneran desde icon.svg)
+release
+build/icon.ico
+build/icon.png
