@@ -35,6 +35,12 @@ export function AlertsProvider({ children }) {
 
   const fireNotification = useCallback((title, body) => {
     try {
+      // Ruta principal: notificación nativa vía proceso principal de Electron
+      // (toast de Windows fiable). Cae a la API web solo si no está disponible.
+      if (typeof window !== 'undefined' && window.electronAPI?.notify) {
+        window.electronAPI.notify(title, body)
+        return
+      }
       if (typeof Notification === 'undefined') return
       if (Notification.permission === 'granted') {
         new Notification(title, { body })

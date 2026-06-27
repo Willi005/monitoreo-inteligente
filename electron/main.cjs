@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, shell, Notification } = require('electron')
 const path = require('path')
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -22,6 +22,10 @@ function createWindow() {
       // Anthropic API directly from the renderer: disable same-origin policy
       // so cross-origin REST/WebSocket calls are not blocked by CORS.
       webSecurity: false,
+      // Mantener el renderer a pleno ritmo cuando la ventana está minimizada u
+      // oculta: si no, Chromium ralentiza timers y procesos en segundo plano y
+      // las alertas/notificaciones solo se disparan al volver a la ventana.
+      backgroundThrottling: false,
     },
   })
 
@@ -51,6 +55,31 @@ ipcMain.on('window:maximize', (e) => {
   w.isMaximized() ? w.unmaximize() : w.maximize()
 })
 ipcMain.on('window:close', (e) => BrowserWindow.fromWebContents(e.sender)?.close())
+
+// Notificación nativa del sistema (toast de Windows / Notification Center).
+// Se dispara desde el proceso principal porque es mucho más fiable que la API
+// web Notification dentro del renderer de Electron en Windows.
+ipcMain.on('notify', (e, payload) => {
+  try {
+    if (!Notification.isSupported()) return
+    const n = new Notification({
+      title: (payload && payload.title) || 'Monitoreo Inteligente',
+      body: (payload && payload.body) || '',
+      silent: false,
+    })
+    // Al hacer clic en el toast, traer la app al frente (restaurar + enfocar).
+    n.on('click', () => {
+      const win = BrowserWindow.fromWebContents(e.sender) || BrowserWindow.getAllWindows()[0]
+      if (!win) return
+      if (win.isMinimized()) win.restore()
+      if (!win.isVisible()) win.show()
+      win.focus()
+    })
+    n.show()
+  } catch {
+    /* notificaciones no disponibles */
+  }
+})
 
 app.whenReady().then(() => {
   // Necesario para que las notificaciones nativas se muestren en Windows.

@@ -29,9 +29,18 @@ export function TelemetryProvider({ children }) {
   // so bursts of telemetry don't trigger a render storm.
   const bufferRef = useRef({}) // { key: [{ ts, value }] }
   const rafRef = useRef(null)
+  const timeoutRef = useRef(null)
 
   const flush = useCallback(() => {
-    rafRef.current = null
+    // Cancela ambos planificadores: el que no haya disparado queda obsoleto.
+    if (rafRef.current != null) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    if (timeoutRef.current != null) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
     const buffer = bufferRef.current
     bufferRef.current = {}
     const keys = Object.keys(buffer)
@@ -62,14 +71,26 @@ export function TelemetryProvider({ children }) {
       for (const [key, point] of Object.entries(parsed)) {
         ;(buffer[key] ||= []).push(point)
       }
+      // rAF para fluidez cuando la ventana es visible; un setTimeout de respaldo
+      // garantiza el volcado aunque la ventana esté minimizada (rAF se pausa
+      // mientras la página no es visible).
       if (rafRef.current == null) {
         rafRef.current = requestAnimationFrame(flush)
+      }
+      if (timeoutRef.current == null) {
+        timeoutRef.current = setTimeout(flush, 250)
       }
     },
     [flush]
   )
 
-  useEffect(() => () => rafRef.current && cancelAnimationFrame(rafRef.current), [])
+  useEffect(
+    () => () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    },
+    []
+  )
 
   const { tbHost, jwt, deviceId } = settings
 
