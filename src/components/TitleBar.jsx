@@ -1,12 +1,16 @@
 import Icon from './Icon'
 import { useTelemetry } from '../context/TelemetryContext'
+import { useSettings } from '../context/SettingsContext'
 
+// Cada estado lleva color para tema oscuro (menta/ámbar de baja saturación) y
+// una variante para tema claro: más oscura y saturada para alcanzar el
+// contraste mínimo (≥4.5:1) sobre el fondo claro del chip.
 const STATUS_META = {
-  open: { label: 'En vivo', color: '#5BD6A6', icon: 'wifi' },
-  connecting: { label: 'Conectando…', color: '#E8C468', icon: 'wifi' },
-  closed: { label: 'Desconectado', color: '#E88A8A', icon: 'wifi-off' },
-  error: { label: 'Error de conexión', color: '#E88A8A', icon: 'wifi-off' },
-  idle: { label: 'Sin configurar', color: '#8A93A6', icon: 'wifi-off' },
+  open: { label: 'En vivo', icon: 'wifi', color: '#5BD6A6', light: '#047857' },
+  connecting: { label: 'Conectando…', icon: 'wifi', color: '#E8C468', light: '#B45309' },
+  closed: { label: 'Desconectado', icon: 'wifi-off', color: '#E88A8A', light: '#DC2626' },
+  error: { label: 'Error de conexión', icon: 'wifi-off', color: '#E88A8A', light: '#DC2626' },
+  idle: { label: 'Sin configurar', icon: 'wifi-off', color: '#8A93A6', light: '#475569' },
 }
 
 function WinButton({ name, onClick, danger }) {
@@ -24,7 +28,13 @@ function WinButton({ name, onClick, danger }) {
 
 export default function TitleBar() {
   const { status, lastUpdate } = useTelemetry()
+  const { settings } = useSettings()
   const meta = STATUS_META[status] || STATUS_META.idle
+  const light = settings.theme === 'light'
+  const color = light ? meta.light : meta.color
+  // Chip un poco más presente en claro (fondo y borde con más cuerpo).
+  const bgAlpha = light ? '1F' : '14'
+  const borderAlpha = light ? '4D' : '33'
   const api = typeof window !== 'undefined' ? window.electronAPI : null
 
   return (
@@ -42,16 +52,19 @@ export default function TitleBar() {
         <div
           className="no-drag flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium"
           style={{
-            color: meta.color,
-            borderColor: `${meta.color}33`,
-            backgroundColor: `${meta.color}14`,
+            color,
+            borderColor: `${color}${borderAlpha}`,
+            backgroundColor: `${color}${bgAlpha}`,
           }}
           title={lastUpdate ? `Última lectura: ${new Date(lastUpdate).toLocaleString('es-CL')}` : ''}
         >
           <Icon name={meta.icon} className="h-3 w-3 shrink-0" />
           <span className="hidden sm:inline">{meta.label}</span>
           {status === 'open' && (
-            <span className="ml-0.5 h-1.5 w-1.5 animate-pulse-soft rounded-full bg-status-good" />
+            <span
+              className="ml-0.5 h-1.5 w-1.5 animate-pulse-soft rounded-full"
+              style={{ backgroundColor: color }}
+            />
           )}
         </div>
 
