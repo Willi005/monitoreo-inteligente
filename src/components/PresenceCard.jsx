@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import GlassCard from './GlassCard'
 import Icon from './Icon'
 
 // Large, unmistakable presence indicator (the most important card).
-export default function PresenceCard({ present, distance, className = '' }) {
+function PresenceCard({ present, distance, className = '' }) {
   const unknown = present === null || present === undefined
   const color = unknown ? '#8A93A6' : present ? '#5BD6A6' : '#8A93A6'
   const title = unknown ? 'Sin datos' : present ? 'Presencia detectada' : 'Escritorio libre'
@@ -59,3 +60,5 @@ export default function PresenceCard({ present, distance, className = '' }) {
     </GlassCard>
   )
 }
+
+export default memo(PresenceCard)

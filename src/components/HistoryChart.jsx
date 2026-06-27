@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import GlassCard from './GlassCard'
 import Icon from './Icon'
@@ -27,7 +28,7 @@ function ChartSkeleton() {
   )
 }
 
-export default function HistoryChart({ sensorKey, data = [], color = '#409CFF', spanDays = 1, loading = false }) {
+function HistoryChart({ sensorKey, data = [], color = '#409CFF', spanDays = 1, loading = false }) {
   const sensor = SENSORS[sensorKey]
   const fmtTime = (ts) =>
     spanDays > 2
@@ -85,3 +86,5 @@ export default function HistoryChart({ sensorKey, data = [], color = '#409CFF', 
     </GlassCard>
   )
 }
+
+export default memo(HistoryChart)

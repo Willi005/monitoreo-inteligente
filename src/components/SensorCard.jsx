@@ -1,10 +1,11 @@
+import { memo } from 'react'
 import GlassCard from './GlassCard'
 import Icon from './Icon'
 import StatusBadge from './StatusBadge'
 import MiniChart from './MiniChart'
 import { SENSORS, classify, formatValue } from '../lib/sensors'
 
-export default function SensorCard({ sensorKey, value, history = [], className = '', large = false }) {
+function SensorCard({ sensorKey, value, history = [], className = '', large = false }) {
   const sensor = SENSORS[sensorKey]
   const level = classify(sensorKey, value)
   const descriptor = sensor.descriptor && value != null ? sensor.descriptor(value) : null
@@ -42,3 +43,5 @@ export default function SensorCard({ sensorKey, value, history = [], className =
     </GlassCard>
   )
 }
+
+export default memo(SensorCard)
