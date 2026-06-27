@@ -113,8 +113,14 @@ export async function getDeviceByName(host, jwt, deviceName) {
 }
 
 // GET /api/plugins/telemetry/DEVICE/{deviceId}/values/timeseries
-// keys: array, startTs/endTs: ms epoch, limit: per-key cap
-export async function getTimeseries(host, jwt, deviceId, keys, startTs, endTs, limit = 5000) {
+// keys: array, startTs/endTs: ms epoch.
+// opts: { limit, agg, interval }
+//  - Sin agg: datos crudos limitados a `limit` (devuelve los MÁS RECIENTES, por
+//    lo que en rangos largos con publicación frecuente solo se ve el final).
+//  - Con agg (p. ej. 'AVG') + interval (ms): el servidor agrega en cubos a lo
+//    largo de TODO el rango, cubriendo la ventana completa con pocos puntos.
+export async function getTimeseries(host, jwt, deviceId, keys, startTs, endTs, opts = {}) {
+  const { limit = 5000, agg, interval } = opts
   const params = new URLSearchParams({
     keys: keys.join(','),
     startTs: String(startTs),
@@ -122,6 +128,8 @@ export async function getTimeseries(host, jwt, deviceId, keys, startTs, endTs, l
     limit: String(limit),
     orderBy: 'ASC',
   })
+  if (agg) params.set('agg', agg)
+  if (interval) params.set('interval', String(interval))
   const data = await tbFetch(
     host,
     `/api/plugins/telemetry/DEVICE/${deviceId}/values/timeseries?${params.toString()}`,

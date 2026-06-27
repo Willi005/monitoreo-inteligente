@@ -83,7 +83,11 @@ function HistoryChart({ sensorKey, data = [], color = '#409CFF', spanDays = 1, l
                 tick={axisTick}
                 axisLine={{ stroke: c.axisLine }}
                 tickLine={false}
+                tickMargin={10}
+                height={34}
                 minTickGap={40}
+                interval="preserveStartEnd"
+                padding={{ left: 12, right: 10 }}
               />
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={44} />
               <Tooltip

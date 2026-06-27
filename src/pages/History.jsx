@@ -50,6 +50,10 @@ export default function History({ onNavigate }) {
     setError('')
     try {
       const { startTs, endTs } = range()
+      // Agregación AVG en ~600 cubos a lo largo de todo el rango: así se cubre
+      // la ventana completa (evita que limit recorte a las últimas horas) y se
+      // renderiza con pocos puntos. Intervalo mínimo de 1 s.
+      const interval = Math.max(1000, Math.round((endTs - startTs) / 600))
       const data = await getTimeseries(
         settings.tbHost,
         settings.jwt,
@@ -57,7 +61,7 @@ export default function History({ onNavigate }) {
         KEYS,
         startTs,
         endTs,
-        2000
+        { agg: 'AVG', interval }
       )
       const parsed = {}
       for (const key of KEYS) {
