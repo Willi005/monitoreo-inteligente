@@ -11,9 +11,9 @@ Sensores: HC-SR04 (presencia), DHT11 (temperatura/humedad), Sensirion SPS30
 ## Descargar e instalar (Windows)
 
 La versión empaquetada está disponible en las
-[**Releases** del repositorio](https://github.com/Willi005/monitoreo-inteligente/releases).
+[**Releases** del repositorio](https://github.com/Willi005/DeskSense/releases).
 
-1. Descarga **`DeskSense-Setup-1.0.0.exe`** de la última release.
+1. Descarga **`DeskSense-Setup-1.0.1.exe`** de la última release.
 2. Ejecútalo y sigue el asistente de instalación.
 3. Se crea un **acceso directo en el escritorio** y en el menú Inicio.
 
