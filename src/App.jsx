@@ -16,7 +16,7 @@ export default function App() {
       <TitleBar />
       <div className="flex min-h-0 flex-1">
         <Sidebar current={page} onNavigate={setPage} />
-        <main className="min-h-0 flex-1 overflow-y-auto px-5 pb-6 pt-2 lg:px-7">
+        <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-6 pt-2 sm:px-5 lg:px-7">
           <div key={page} className="mx-auto max-w-[1400px] animate-fade-in">
             {page === 'dashboard' && (
               <Dashboard
