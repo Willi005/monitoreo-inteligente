@@ -14,7 +14,7 @@
 // contraste mínimo (≥4.5:1) en las etiquetas pequeñas.
 export const LEVELS = {
   good: { id: 'good', label: 'Bueno', color: '#5BD6A6', light: '#047857', text: 'text-status-good' },
-  moderate: { id: 'moderate', label: 'Moderado', color: '#E8C468', light: '#B45309', text: 'text-status-moderate' },
+  moderate: { id: 'moderate', label: 'Moderado', color: '#E8C468', light: '#CA8A04', text: 'text-status-moderate' },
   bad: { id: 'bad', label: 'Malo', color: '#E88A8A', light: '#DC2626', text: 'text-status-bad' },
   severe: { id: 'severe', label: 'Crítico', color: '#E06B9A', light: '#BE185D', text: 'text-status-severe' },
   unknown: { id: 'unknown', label: 'Sin datos', color: '#8A93A6', light: '#475569', text: 'text-white/40' },
