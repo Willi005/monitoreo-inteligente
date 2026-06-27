@@ -8,73 +8,96 @@ import { SENSORS } from '../lib/sensors'
 // Sensores con tarjeta en el Dashboard que se pueden habilitar/deshabilitar.
 const TOGGLEABLE = ['pm25', 'temperatura', 'humedad', 'luz', 'ruido']
 
+// Cada tema lleva los colores con los que se dibuja su mini-maqueta (fondo,
+// superficie de vidrio, borde, acento y un tono apagado para los detalles).
 const THEMES = [
   {
     id: 'dark',
     label: 'Oscuro',
-    desc: 'Vidrio sobre fondo profundo',
     icon: 'moon',
-    // gradiente del preview (coincide con AppBackground oscuro)
     bg: 'linear-gradient(160deg, #0a0e1a 0%, #141a30 100%)',
     tile: 'rgba(255,255,255,0.10)',
-    tileBorder: 'rgba(255,255,255,0.18)',
+    tileBorder: 'rgba(255,255,255,0.16)',
+    accent: '#409CFF',
+    muted: 'rgba(255,255,255,0.28)',
+    footerBg: '#11151f',
+    footerText: 'rgba(255,255,255,0.85)',
+    chipBg: 'rgba(255,255,255,0.12)',
   },
   {
     id: 'light',
     label: 'Claro',
-    desc: 'Vidrio blanco sobre fondo claro',
     icon: 'sun',
     bg: 'linear-gradient(160deg, #eef2fa 0%, #dbe4ff 100%)',
-    tile: 'rgba(255,255,255,0.7)',
+    tile: 'rgba(255,255,255,0.75)',
     tileBorder: 'rgba(15,23,42,0.12)',
+    accent: '#0A84FF',
+    muted: 'rgba(15,23,42,0.28)',
+    footerBg: '#f4f6fb',
+    footerText: 'rgba(15,23,42,0.85)',
+    chipBg: 'rgba(15,23,42,0.1)',
   },
 ]
 
+// Recuadro cuya misión es mostrar visualmente cómo se ve la app en ese tema:
+// una mini-maqueta con sidebar, barra superior y un bento con acento.
 function ThemePreview({ theme, active, onSelect }) {
+  const tile = { background: theme.tile, border: `1px solid ${theme.tileBorder}` }
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`group relative flex flex-col gap-3 rounded-2xl border p-3 text-left transition-all ${
-        active
-          ? 'border-accent/70 ring-2 ring-accent/40'
-          : 'border-white/10 hover:border-white/20'
+      className={`group relative overflow-hidden rounded-2xl border text-left transition-all ${
+        active ? 'border-accent/70 ring-2 ring-accent/40' : 'border-white/10 hover:border-white/20'
       }`}
     >
-      {/* Mini maqueta del tema */}
-      <div
-        className="relative h-24 overflow-hidden rounded-xl"
-        style={{ background: theme.bg }}
-      >
-        <div
-          className="absolute left-3 top-3 h-[18px] w-16 rounded-md"
-          style={{ background: theme.tile, border: `1px solid ${theme.tileBorder}` }}
-        />
-        <div
-          className="absolute left-3 top-9 h-9 w-24 rounded-md"
-          style={{ background: theme.tile, border: `1px solid ${theme.tileBorder}` }}
-        />
-        <div
-          className="absolute right-3 top-3 bottom-3 w-10 rounded-md"
-          style={{ background: theme.tile, border: `1px solid ${theme.tileBorder}` }}
-        />
-      </div>
-
-      <div className="flex items-center justify-between gap-2 px-0.5">
-        <div className="flex items-center gap-2">
-          <Icon name={theme.icon} className="h-4 w-4 text-accent-soft" />
-          <div>
-            <p className="text-sm font-medium text-white/90">{theme.label}</p>
-            <p className="text-[11px] text-white/45">{theme.desc}</p>
+      <div className="flex h-24 gap-1.5 p-2" style={{ background: theme.bg }}>
+        {/* sidebar */}
+        <div className="flex w-4 flex-col items-center gap-1 rounded-md py-1.5" style={tile}>
+          <span className="h-1 w-1 rounded-full" style={{ background: theme.accent }} />
+          <span className="h-1 w-1 rounded-full" style={{ background: theme.muted }} />
+          <span className="h-1 w-1 rounded-full" style={{ background: theme.muted }} />
+        </div>
+        {/* contenido */}
+        <div className="flex flex-1 flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="h-1.5 w-9 rounded-full" style={{ background: theme.muted }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: theme.accent }} />
+          </div>
+          <div className="grid flex-1 grid-cols-3 grid-rows-2 gap-1">
+            <div className="row-span-2 rounded-md" style={tile} />
+            <div className="col-span-2 rounded-md" style={tile} />
+            <div className="rounded-md" style={tile} />
+            <div className="relative overflow-hidden rounded-md" style={tile}>
+              <span className="absolute bottom-1 left-1 h-1 w-4 rounded-full" style={{ background: theme.accent }} />
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* etiqueta compacta — colores fijos del tema que representa, no del
+          tema actual de la app */}
+      <div
+        className="flex items-center justify-between gap-2 px-2.5 py-2"
+        style={{ background: theme.footerBg }}
+      >
         <span
-          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all ${
-            active ? 'bg-accent text-white' : 'bg-white/10 text-transparent'
-          }`}
+          className="flex items-center gap-1.5 text-xs font-medium"
+          style={{ color: theme.footerText }}
         >
-          <Icon name="check-mark" className="h-3 w-3" />
+          <Icon name={theme.icon} className="h-3.5 w-3.5" style={{ color: theme.accent }} />
+          {theme.label}
+        </span>
+        <span
+          className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-all"
+          style={{ background: active ? '#0A84FF' : theme.chipBg }}
+        >
+          <Icon
+            name="check-mark"
+            className="h-2.5 w-2.5"
+            style={{ color: active ? '#fff' : 'transparent' }}
+          />
         </span>
       </div>
     </button>
@@ -123,9 +146,8 @@ export default function Appearance() {
             ))}
           </div>
 
-          <p className="mt-4 text-[11px] leading-relaxed text-white/40">
-            El cambio se aplica al instante y se conserva al reabrir la aplicación. El modo claro
-            mantiene el mismo estilo de vidrio esmerilado sobre un fondo luminoso.
+          <p className="mt-3 text-[11px] leading-relaxed text-white/40">
+            Se aplica al instante y se conserva al reabrir la app.
           </p>
         </GlassCard>
 

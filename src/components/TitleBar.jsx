@@ -6,7 +6,7 @@ import { useSettings } from '../context/SettingsContext'
 // una variante para tema claro: más oscura y saturada para alcanzar el
 // contraste mínimo (≥4.5:1) sobre el fondo claro del chip.
 const STATUS_META = {
-  open: { label: 'En vivo', icon: 'wifi', color: '#5BD6A6', light: '#047857' },
+  open: { label: 'En vivo', icon: 'wifi', color: '#5BD6A6', light: '#0066CC' },
   connecting: { label: 'Conectando…', icon: 'wifi', color: '#E8C468', light: '#B45309' },
   closed: { label: 'Desconectado', icon: 'wifi-off', color: '#E88A8A', light: '#DC2626' },
   error: { label: 'Error de conexión', icon: 'wifi-off', color: '#E88A8A', light: '#DC2626' },
