@@ -1,6 +1,13 @@
 // Sensor metadata, thresholds and classification logic.
 // Telemetry keys from ThingsBoard: distancia, luz, ruido, temperatura,
 // humedad, pm1, pm25, pm4, pm10.
+//
+// Rangos de referencia (entorno de trabajo) según:
+//  - Temperatura/Humedad: ASHRAE 55, ISO 7730, OMS.
+//  - PM2.5/PM10: OMS Air Quality Guidelines 2021, EPA AQI.
+//  - Luz: ISO 8995-1 / EN 12464-1 (el DFR0026 entrega % del ADC, no lux).
+//  - Ruido: WHO Environmental Noise Guidelines 2018 (KY-037, amplitud cruda
+//    calibrada en el entorno del prototipo).
 
 export const LEVELS = {
   good: { id: 'good', label: 'Bueno', color: '#5BD6A6', text: 'text-status-good' },
@@ -10,18 +17,14 @@ export const LEVELS = {
   unknown: { id: 'unknown', label: 'Sin datos', color: '#8A93A6', text: 'text-white/40' },
 }
 
-// Distance (cm) below which we consider a person seated at the desk.
-export const PRESENCE_DISTANCE_CM = 120
-
-// ---- Per-variable classifiers ----
-
-function band(value, stops) {
-  // stops: ordered [{ max, level }] ; last entry is the fallback (max: Infinity)
-  for (const s of stops) {
-    if (value <= s.max) return LEVELS[s.level]
-  }
-  return LEVELS.unknown
+// Devuelve un nivel (con su color) y, opcionalmente, una etiqueta específica
+// del sensor (p. ej. "Óptimo", "Insuficiente", "Muy malo").
+function lvl(id, label) {
+  return label ? { ...LEVELS[id], label } : LEVELS[id]
 }
+
+// Distance (cm) below which we consider a person seated at the desk.
+export const PRESENCE_DISTANCE_CM = 80
 
 export const SENSORS = {
   temperatura: {
@@ -31,13 +34,16 @@ export const SENSORS = {
     unit: '°C',
     icon: 'thermometer',
     decimals: 1,
+    // Óptimo 20–24 · Aceptable 18–26 · Malo <18/>26 · Crítico <15/>30
     classify: (v) =>
-      v < 16 || v >= 30
-        ? LEVELS.bad
-        : v < 18 || v >= 27
-        ? LEVELS.moderate
-        : LEVELS.good,
-    hint: 'Confort térmico ideal: 20–25 °C',
+      v < 15 || v > 30
+        ? lvl('severe', 'Crítico')
+        : v < 18 || v > 26
+        ? lvl('bad', 'Malo')
+        : v < 20 || v > 24
+        ? lvl('moderate', 'Aceptable')
+        : lvl('good', 'Óptimo'),
+    hint: 'Óptimo 20–24 °C · Aceptable 18–26 °C · Crítico <15 o >30 °C (ASHRAE 55)',
   },
   humedad: {
     key: 'humedad',
@@ -46,30 +52,37 @@ export const SENSORS = {
     unit: '%',
     icon: 'droplets',
     decimals: 0,
+    // Óptimo 40–60 · Aceptable 30–70 · Malo <30/>70 · Crítico <20/>80
     classify: (v) =>
-      v < 25 || v >= 70
-        ? LEVELS.bad
-        : v < 40 || v >= 60
-        ? LEVELS.moderate
-        : LEVELS.good,
-    hint: 'Humedad relativa saludable: 40–60 %',
+      v < 20 || v > 80
+        ? lvl('severe', 'Crítico')
+        : v < 30 || v > 70
+        ? lvl('bad', 'Malo')
+        : v < 40 || v > 60
+        ? lvl('moderate', 'Aceptable')
+        : lvl('good', 'Óptimo'),
+    hint: 'Óptimo 40–60 % · Aceptable 30–70 % · Crítico <20 o >80 % (ASHRAE 55 / OMS)',
   },
   luz: {
     key: 'luz',
     label: 'Luz ambiental',
     short: 'Luz',
-    unit: 'lux',
+    unit: '%',
     icon: 'sun',
     decimals: 0,
+    // DFR0026 entrega % del ADC. Insuficiente 0–20 · Aceptable 20–50 ·
+    // Óptimo 50–80 · Excesivo >80
     classify: (v) =>
-      v < 100
-        ? LEVELS.bad
-        : v < 300
-        ? LEVELS.moderate
-        : v > 1500
-        ? LEVELS.moderate
-        : LEVELS.good,
-    hint: 'Trabajo de oficina recomendado: 300–500 lux',
+      v < 20
+        ? lvl('bad', 'Insuficiente')
+        : v < 50
+        ? lvl('moderate', 'Aceptable')
+        : v <= 80
+        ? lvl('good', 'Óptimo')
+        : lvl('bad', 'Excesivo'),
+    descriptor: (v) =>
+      v < 20 ? '< 200 lux' : v < 50 ? '200–500 lux' : v <= 80 ? '500–800 lux' : '> 800 lux',
+    hint: 'Óptimo 50–80 % (≈500–800 lux) · Insuficiente <20 % · Excesivo >80 % (EN 12464-1)',
   },
   ruido: {
     key: 'ruido',
@@ -78,17 +91,25 @@ export const SENSORS = {
     unit: '',
     icon: 'volume-2',
     decimals: 0,
-    // KY-037 raw amplitude 0–4095
+    // KY-037 amplitud cruda 0–4095 (calibrada en el entorno).
+    // Silencio <50 · Bajo 50–80 · Moderado 80–140 · Alto >140
     classify: (v) =>
-      band(v, [
-        { max: 50, level: 'good' }, // silencio
-        { max: 80, level: 'good' }, // bajo
-        { max: 140, level: 'moderate' }, // moderado
-        { max: Infinity, level: 'bad' }, // alto
-      ]),
+      v < 50
+        ? lvl('good', 'Silencio')
+        : v < 80
+        ? lvl('good', 'Bajo')
+        : v < 140
+        ? lvl('moderate', 'Moderado')
+        : lvl('bad', 'Alto'),
     descriptor: (v) =>
-      v < 50 ? 'Silencio' : v < 80 ? 'Bajo' : v < 140 ? 'Moderado' : 'Alto',
-    hint: 'Amplitud cruda KY-037 (0–4095)',
+      v < 50
+        ? 'Silencio · <35 dB'
+        : v < 80
+        ? 'Bajo · 35–50 dB'
+        : v < 140
+        ? 'Moderado · 50–65 dB'
+        : 'Alto · >65 dB',
+    hint: 'Amplitud cruda KY-037 (0–4095). Ideal <50 (<35 dB) · Alto >140 (>65 dB)',
   },
   pm25: {
     key: 'pm25',
@@ -97,15 +118,19 @@ export const SENSORS = {
     unit: 'µg/m³',
     icon: 'wind',
     decimals: 1,
-    // WHO / AQI thresholds
+    // OMS 2021 / EPA: Bueno 0–12 · Moderado 12–35 · Malo sensibles 35–55 ·
+    // Malo 55–150 · Muy malo >150
     classify: (v) =>
-      band(v, [
-        { max: 12, level: 'good' },
-        { max: 35, level: 'moderate' },
-        { max: 55, level: 'bad' },
-        { max: Infinity, level: 'severe' },
-      ]),
-    hint: 'OMS — Bueno 0–12 · Moderado 12–35 · Malo 35–55 · Crítico 55+',
+      v <= 12
+        ? lvl('good', 'Bueno')
+        : v <= 35
+        ? lvl('moderate', 'Moderado')
+        : v <= 55
+        ? lvl('bad', 'Malo (sensibles)')
+        : v <= 150
+        ? lvl('severe', 'Malo')
+        : lvl('severe', 'Muy malo'),
+    hint: 'OMS — Bueno 0–12 · Moderado 12–35 · Malo (sensibles) 35–55 · Malo 55–150 · Muy malo >150',
   },
   pm1: {
     key: 'pm1',
@@ -114,14 +139,10 @@ export const SENSORS = {
     unit: 'µg/m³',
     icon: 'wind',
     decimals: 1,
+    // Derivado de PM2.5: Bueno 0–10 · Moderado 10–25 · Malo >25
     classify: (v) =>
-      band(v, [
-        { max: 10, level: 'good' },
-        { max: 25, level: 'moderate' },
-        { max: 50, level: 'bad' },
-        { max: Infinity, level: 'severe' },
-      ]),
-    hint: 'Partículas finas < 1 µm',
+      v <= 10 ? lvl('good', 'Bueno') : v <= 25 ? lvl('moderate', 'Moderado') : lvl('bad', 'Malo'),
+    hint: 'Partículas ultrafinas <1 µm — Bueno 0–10 · Moderado 10–25 · Malo >25',
   },
   pm4: {
     key: 'pm4',
@@ -130,14 +151,10 @@ export const SENSORS = {
     unit: 'µg/m³',
     icon: 'wind',
     decimals: 1,
+    // Sin estándar oficial; interpolado entre PM2.5 y PM10.
     classify: (v) =>
-      band(v, [
-        { max: 25, level: 'good' },
-        { max: 50, level: 'moderate' },
-        { max: 90, level: 'bad' },
-        { max: Infinity, level: 'severe' },
-      ]),
-    hint: 'Partículas < 4 µm',
+      v <= 16 ? lvl('good', 'Bueno') : v <= 40 ? lvl('moderate', 'Moderado') : v <= 75 ? lvl('bad', 'Malo') : lvl('severe', 'Crítico'),
+    hint: 'Partículas <4 µm (valor derivado, sin estándar oficial)',
   },
   pm10: {
     key: 'pm10',
@@ -146,14 +163,16 @@ export const SENSORS = {
     unit: 'µg/m³',
     icon: 'wind',
     decimals: 1,
+    // OMS 2021: Bueno 0–20 · Moderado 20–45 · Malo 45–100 · Crítico >100
     classify: (v) =>
-      band(v, [
-        { max: 54, level: 'good' },
-        { max: 154, level: 'moderate' },
-        { max: 254, level: 'bad' },
-        { max: Infinity, level: 'severe' },
-      ]),
-    hint: 'OMS — Bueno 0–54 · Moderado 54–154 · Malo 154+',
+      v <= 20
+        ? lvl('good', 'Bueno')
+        : v <= 45
+        ? lvl('moderate', 'Moderado')
+        : v <= 100
+        ? lvl('bad', 'Malo')
+        : lvl('severe', 'Crítico'),
+    hint: 'OMS — Bueno 0–20 · Moderado 20–45 · Malo 45–100 · Crítico >100',
   },
   distancia: {
     key: 'distancia',
@@ -163,7 +182,7 @@ export const SENSORS = {
     icon: 'ruler',
     decimals: 0,
     classify: () => LEVELS.unknown,
-    hint: 'HC-SR04 — usado para detección de presencia',
+    hint: `HC-SR04 — presencia detectada bajo ${PRESENCE_DISTANCE_CM} cm`,
   },
 }
 
