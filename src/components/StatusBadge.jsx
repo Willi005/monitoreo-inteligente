@@ -5,14 +5,14 @@ export default function StatusBadge({ level, label }) {
   const color = level?.color ?? '#8A93A6'
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+      className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium"
       style={{
         color,
         backgroundColor: `${color}1A`,
         border: `1px solid ${color}33`,
       }}
     >
-      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
       {text}
     </span>
   )

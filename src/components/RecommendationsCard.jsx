@@ -37,21 +37,21 @@ export default function RecommendationsCard({ className = '', onOpenAssistant })
   }, [active.provider, active.apiKey, active.model, values])
 
   return (
-    <GlassCard className={`flex flex-col p-6 ${className}`}>
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/20">
+    <GlassCard className={`flex flex-col overflow-hidden p-6 ${className}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent/20">
             <Icon name="sparkles" className="h-5 w-5 text-accent-soft" />
           </span>
-          <div>
-            <h3 className="text-base font-semibold text-white">Asistente ambiental</h3>
-            <p className="text-xs text-white/45">Recomendaciones según tu entorno</p>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-semibold text-white">Asistente ambiental</h3>
+            <p className="truncate text-xs text-white/45">Recomendaciones según tu entorno</p>
           </div>
         </div>
         <button
           onClick={run}
           disabled={loading || !hasKey || !hasData}
-          className="no-drag flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 disabled:opacity-40"
+          className="no-drag flex shrink-0 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 disabled:opacity-40"
         >
           <Icon name={loading ? 'loader' : 'refresh'} className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           {loading ? 'Analizando…' : 'Generar'}
