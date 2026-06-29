@@ -88,28 +88,28 @@ export const SENSORS = {
     key: 'ruido',
     label: 'Nivel de ruido',
     short: 'Ruido',
-    unit: '',
+    unit: 'dB',
     icon: 'volume-2',
     decimals: 0,
-    // KY-037 amplitud cruda 0–4095 (calibrada en el entorno).
-    // Silencio <50 · Bajo 50–80 · Moderado 80–140 · Alto >140
+    // dB aproximados estimados desde la amplitud del KY-037 (calibrado).
+    // Silencio <50 · Bajo 50–60 · Moderado 60–68 · Alto >68
     classify: (v) =>
       v < 50
         ? lvl('good', 'Silencio')
-        : v < 80
+        : v < 60
         ? lvl('good', 'Bajo')
-        : v < 140
+        : v < 68
         ? lvl('moderate', 'Moderado')
         : lvl('bad', 'Alto'),
     descriptor: (v) =>
       v < 50
-        ? 'Silencio · <35 dB'
-        : v < 80
-        ? 'Bajo · 35–50 dB'
-        : v < 140
-        ? 'Moderado · 50–65 dB'
-        : 'Alto · >65 dB',
-    hint: 'Amplitud cruda KY-037 (0–4095). Ideal <50 (<35 dB) · Alto >140 (>65 dB)',
+        ? 'Silencio · trabajo profundo'
+        : v < 60
+        ? 'Bajo · oficina tranquila'
+        : v < 68
+        ? 'Moderado · distrae'
+        : 'Alto · impacto severo',
+    hint: 'dB aproximados (KY-037 calibrado). Óptimo <50 · Moderado 60–68 · Alto >68 (WHO 2018)',
   },
   pm25: {
     key: 'pm25',

@@ -113,7 +113,13 @@ export function TelemetryProvider({ children }) {
       vals[k] = v?.value
       if (v?.ts && v.ts > last) last = v.ts
     }
-    return { values: vals, presence: derivePresence(latest.distancia?.value), lastUpdate: last }
+    // Prefer the explicit `presencia` flag sent by the device; fall back to
+    // deriving it from the HC-SR04 distance.
+    const pres =
+      latest.presencia?.value != null
+        ? latest.presencia.value > 0
+        : derivePresence(latest.distancia?.value)
+    return { values: vals, presence: pres, lastUpdate: last }
   }, [latest])
 
   const ctxValue = useMemo(

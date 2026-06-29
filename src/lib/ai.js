@@ -47,13 +47,13 @@ Luz ambiental (%) — DFR0026 · ISO 8995-1 / EN 12464-1
 El sensor entrega un porcentaje del ADC (0–100 %), proporcional a la intensidad luminosa, NO lux directos.
 · Insuficiente 0–20 % (≈<200 lux, fatiga visual) · Aceptable 20–50 % (≈200–500 lux) · Óptimo 50–80 % (≈500–800 lux, recomendado para oficina) · Excesivo >80 % (≈>800 lux, deslumbramiento).
 
-Ruido ambiental — KY-037 · WHO 2018
-Amplitud cruda (0–4095) calibrada en este entorno, NO dB exactos.
-· Silencio <50 (≈<35 dB, ideal para trabajo cognitivo) · Bajo 50–80 (≈35–50 dB) · Moderado 80–140 (≈50–65 dB, distrae) · Alto >140 (≈>65 dB, impacto severo en la concentración).
+Ruido ambiental (dB aprox.) — KY-037 · WHO 2018
+Nivel estimado en decibelios a partir de la amplitud del sensor (calibrado en este entorno; es una aproximación, no un sonómetro).
+· Silencio <50 dB (ideal para trabajo cognitivo profundo) · Bajo 50–60 dB (oficina tranquila) · Moderado 60–68 dB (distrae) · Alto >68 dB (impacto severo en la concentración).
 
-Presencia — HC-SR04: binaria (hay persona / no hay). Umbral 80 cm. Solo se generan datos cuando hay alguien en el escritorio.
+Presencia — HC-SR04: binaria (hay persona / no hay). Umbral 80 cm. Solo se mide y envía el resto de sensores cuando hay alguien en el escritorio; si no hay presencia, esos valores quedan pausados (son los últimos registrados).
 
-Responde en español, de forma concreta y accionable. Sé breve y cálido. Cuando recomiendes algo, explica el porqué según los datos y el rango afectado. Recuerda: la luz se expresa en % (no lux) y el ruido es una amplitud relativa (no dB exactos).`
+Responde en español, de forma concreta y accionable. Sé breve y cálido. Cuando recomiendes algo, explica el porqué según los datos y el rango afectado. Recuerda: la luz se expresa en % (no lux) y el ruido en dB aproximados (estimados, no de sonómetro calibrado).`
 
 // ---- Provider clients ----
 
