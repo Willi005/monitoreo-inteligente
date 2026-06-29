@@ -18,6 +18,8 @@ const DEFAULTS = {
   // Nunca deben quedar escritas en el código fuente.
   openrouterApiKey: import.meta.env?.VITE_OPENROUTER_API_KEY || '',
   anthropicApiKey: import.meta.env?.VITE_ANTHROPIC_API_KEY || '',
+  // Alertas automáticas cuando una métrica llega a nivel alto/crítico.
+  alertsEnabled: true,
 }
 
 function load() {

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AppBackground from './components/AppBackground'
 import TitleBar from './components/TitleBar'
 import Sidebar from './components/Sidebar'
+import AlertToasts from './components/AlertToasts'
 import Dashboard from './pages/Dashboard'
 import History from './pages/History'
 import Assistant from './pages/Assistant'
@@ -17,7 +18,11 @@ export default function App() {
       <div className="flex min-h-0 flex-1">
         <Sidebar current={page} onNavigate={setPage} />
         <main className="min-h-0 flex-1 overflow-y-auto px-4 pb-6 pt-2 sm:px-5 lg:px-7">
-          <div key={page} className="mx-auto max-w-[1400px] animate-fade-in">
+          {/* Right margin that mirrors the sidebar width so content sits
+              balanced between equal left/right gutters. It grows with the
+              viewport (full sidebar width on large screens) to avoid cramping
+              the bento on narrower windows. */}
+          <div key={page} className="animate-fade-in lg:mr-24 xl:mr-44 2xl:mr-56">
             {page === 'dashboard' && (
               <Dashboard
                 onOpenAssistant={() => setPage('assistant')}
@@ -30,6 +35,7 @@ export default function App() {
           </div>
         </main>
       </div>
+      <AlertToasts onOpenAssistant={() => setPage('assistant')} />
     </div>
   )
 }

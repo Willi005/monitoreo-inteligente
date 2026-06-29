@@ -18,6 +18,26 @@ function Field({ label, hint, children }) {
 const inputCls =
   'w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white/90 placeholder-white/30 outline-none transition-colors focus:border-accent/60'
 
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+        checked ? 'bg-accent' : 'bg-white/15'
+      }`}
+    >
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+  )
+}
+
 function SecretInput({ value, onChange, placeholder }) {
   const [show, setShow] = useState(false)
   return (
@@ -161,6 +181,20 @@ export default function Settings({ onConnected }) {
               <Field label="API Key de Anthropic" hint="Solo para los modelos Claude. Nunca se envía a ThingsBoard.">
                 <SecretInput value={form.anthropicApiKey} onChange={set('anthropicApiKey')} placeholder="sk-ant-…" />
               </Field>
+
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-white/75">Alertas automáticas</p>
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-white/40">
+                    Aviso en pantalla y notificación con un consejo de la IA cuando una métrica llega a
+                    nivel alto o crítico.
+                  </p>
+                </div>
+                <Toggle
+                  checked={form.alertsEnabled !== false}
+                  onChange={() => setForm((f) => ({ ...f, alertsEnabled: f.alertsEnabled === false }))}
+                />
+              </div>
             </div>
           </GlassCard>
 
