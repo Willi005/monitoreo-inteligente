@@ -123,6 +123,27 @@ export async function generateRecommendations({ provider, apiKey, model, values 
   })
 }
 
+// Short, focused advice for a single metric that crossed into a bad/critical
+// level. Returns 1–2 actionable sentences. Used by the alert toasts.
+export async function generateAlertAdvice({ provider, apiKey, model, values, sensorKey, levelLabel }) {
+  const sensor = SENSORS[sensorKey]
+  const context = buildContext(values)
+  const value = formatValue(sensorKey, values[sensorKey])
+  return callModel({
+    provider,
+    apiKey,
+    model,
+    system: SYSTEM_PROMPT,
+    maxTokens: 200,
+    messages: [
+      {
+        role: 'user',
+        content: `El parámetro "${sensor.label}" alcanzó un nivel ${levelLabel} (actual: ${value} ${sensor.unit}).\nEstado del entorno:\n${context}\n\nDa UN solo consejo breve (1–2 frases, máximo 35 palabras), concreto y accionable, para mejorar específicamente este parámetro ahora mismo. Ve directo al consejo, sin saludos ni introducción.`,
+      },
+    ],
+  })
+}
+
 // Free-form chat. `messages` is an array of { role: 'user'|'assistant', content }.
 export async function chat({ provider, apiKey, model, values, messages }) {
   const context = buildContext(values)

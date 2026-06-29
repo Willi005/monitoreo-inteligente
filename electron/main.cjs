@@ -6,9 +6,10 @@ const isDev = process.env.NODE_ENV === 'development'
 function createWindow() {
   const win = new BrowserWindow({
     width: 1440,
-    height: 900,
+    height: 1024,
     minWidth: 1024,
-    minHeight: 680,
+    minHeight: 1024,
+    center: true,
     show: false,
     frame: false,
     titleBarStyle: 'hiddenInset',
@@ -52,6 +53,8 @@ ipcMain.on('window:maximize', (e) => {
 ipcMain.on('window:close', (e) => BrowserWindow.fromWebContents(e.sender)?.close())
 
 app.whenReady().then(() => {
+  // Necesario para que las notificaciones nativas se muestren en Windows.
+  if (process.platform === 'win32') app.setAppUserModelId('com.monitoreo.escritorio')
   createWindow()
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

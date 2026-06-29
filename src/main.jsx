@@ -8,12 +8,15 @@ import './index.css'
 import App from './App.jsx'
 import { SettingsProvider } from './context/SettingsContext.jsx'
 import { TelemetryProvider } from './context/TelemetryContext.jsx'
+import { AlertsProvider } from './context/AlertsContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <SettingsProvider>
       <TelemetryProvider>
-        <App />
+        <AlertsProvider>
+          <App />
+        </AlertsProvider>
       </TelemetryProvider>
     </SettingsProvider>
   </React.StrictMode>
