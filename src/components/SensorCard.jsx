@@ -5,24 +5,29 @@ import StatusBadge from './StatusBadge'
 import MiniChart from './MiniChart'
 import { SENSORS, classify, formatValue } from '../lib/sensors'
 
-function SensorCard({ sensorKey, value, history = [], className = '', large = false }) {
+function SensorCard({ sensorKey, value, history = [], className = '', large = false, paused = false }) {
   const sensor = SENSORS[sensorKey]
   const level = classify(sensorKey, value)
   const descriptor = sensor.descriptor && value != null ? sensor.descriptor(value) : null
 
   return (
-    <GlassCard hover className={`flex min-h-0 flex-col p-5 ${className}`}>
-      <div className="flex shrink-0 items-start justify-between">
-        <div className="flex items-center gap-2.5">
+    <GlassCard
+      hover
+      className={`flex min-h-0 flex-col overflow-hidden p-5 transition-opacity duration-500 ${
+        paused ? 'opacity-50' : ''
+      } ${className}`}
+    >
+      <div className="flex shrink-0 items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2.5">
           <span
-            className="flex h-9 w-9 items-center justify-center rounded-xl"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
             style={{ backgroundColor: `${level.color}1F` }}
           >
             <Icon name={sensor.icon} className="h-[18px] w-[18px]" style={{ color: level.color }} />
           </span>
-          <div>
-            <p className="text-sm font-medium text-white/70">{sensor.label}</p>
-            {descriptor && <p className="text-[11px] text-white/40">{descriptor}</p>}
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-white/70">{sensor.label}</p>
+            {descriptor && <p className="truncate text-[11px] text-white/40">{descriptor}</p>}
           </div>
         </div>
         {value != null && <StatusBadge level={level} />}
@@ -35,7 +40,9 @@ function SensorCard({ sensorKey, value, history = [], className = '', large = fa
         {sensor.unit && <span className="mb-1 text-sm text-white/45">{sensor.unit}</span>}
       </div>
 
-      <div className="mt-3 min-h-[40px] flex-1">
+      {/* base: fixed chart height (card grows to content); sm+: fill the
+          remaining space and shrink if tight so it never spills out. */}
+      <div className="mt-3 h-12 sm:h-auto sm:min-h-0 sm:flex-1">
         <MiniChart data={history} color={level.color} unit={sensor.unit} />
       </div>
 

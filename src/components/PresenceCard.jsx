@@ -34,7 +34,7 @@ function PresenceCard({ present, distance, className = '' }) {
         </span>
       </div>
 
-      <div className="relative flex flex-col items-center justify-center py-6">
+      <div className="relative flex flex-col items-center justify-center py-6 text-center">
         <span
           className="flex h-24 w-24 items-center justify-center rounded-full ring-1 transition-all duration-500"
           style={{

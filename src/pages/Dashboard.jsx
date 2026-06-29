@@ -1,4 +1,6 @@
 import PageHeader from '../components/PageHeader'
+import GlassCard from '../components/GlassCard'
+import Icon from '../components/Icon'
 import SensorCard from '../components/SensorCard'
 import PresenceCard from '../components/PresenceCard'
 import RecommendationsCard from '../components/RecommendationsCard'
@@ -11,6 +13,10 @@ export default function Dashboard({ onOpenAssistant, onNavigate }) {
   const updated = lastUpdate
     ? new Date(lastUpdate).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     : null
+
+  // When nobody is at the desk the device pauses all sensors except presence;
+  // the values shown are the last recorded ones.
+  const paused = presence === false
 
   if (!isConfigured) {
     return (
@@ -25,8 +31,27 @@ export default function Dashboard({ onOpenAssistant, onNavigate }) {
     <>
       <PageHeader
         title="Dashboard"
-        subtitle={updated ? `Última lectura · ${updated}` : 'Esperando primera lectura…'}
+        subtitle={
+          paused
+            ? 'Monitoreo en pausa · sin presencia'
+            : updated
+            ? `Última lectura · ${updated}`
+            : 'Esperando primera lectura…'
+        }
       />
+
+      {paused && (
+        <GlassCard className="mb-4 flex items-center gap-3 p-3.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
+            <Icon name="user-x" className="h-[18px] w-[18px] text-white/55" />
+          </span>
+          <p className="text-sm leading-relaxed text-white/55">
+            <span className="font-medium text-white/75">Monitoreo en pausa.</span> No hay nadie en el
+            escritorio; el dispositivo solo registra los demás sensores cuando detecta presencia. Los
+            valores mostrados son los últimos registrados.
+          </p>
+        </GlassCard>
+      )}
 
       {/* Responsive bento:
           · base (<640px): single column, cards size to content.
@@ -48,14 +73,15 @@ export default function Dashboard({ onOpenAssistant, onNavigate }) {
           value={values.pm25}
           history={history.pm25}
           large
+          paused={paused}
           className="lg:col-span-2 lg:row-span-2 lg:col-start-1 lg:row-start-3"
         />
 
         {/* Secondary sensors — small blocks */}
-        <SensorCard sensorKey="temperatura" value={values.temperatura} history={history.temperatura} className="lg:col-start-2 lg:row-start-1" />
-        <SensorCard sensorKey="humedad" value={values.humedad} history={history.humedad} className="lg:col-start-2 lg:row-start-2" />
-        <SensorCard sensorKey="luz" value={values.luz} history={history.luz} className="lg:col-start-3 lg:row-start-4" />
-        <SensorCard sensorKey="ruido" value={values.ruido} history={history.ruido} className="lg:col-start-4 lg:row-start-4" />
+        <SensorCard sensorKey="temperatura" value={values.temperatura} history={history.temperatura} paused={paused} className="lg:col-start-2 lg:row-start-1" />
+        <SensorCard sensorKey="humedad" value={values.humedad} history={history.humedad} paused={paused} className="lg:col-start-2 lg:row-start-2" />
+        <SensorCard sensorKey="luz" value={values.luz} history={history.luz} paused={paused} className="lg:col-start-3 lg:row-start-4" />
+        <SensorCard sensorKey="ruido" value={values.ruido} history={history.ruido} paused={paused} className="lg:col-start-4 lg:row-start-4" />
 
         {/* AI assistant — lg: tallest dominant block (right); sm: full-width */}
         <RecommendationsCard
