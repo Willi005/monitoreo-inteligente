@@ -27,6 +27,16 @@
 // Si alguien esta a menos de esta distancia, se activa el monitoreo completo.
 #define UMBRAL_PRESENCIA_CM 80
 
+// --- Filtrado de presencia (HC-SR04) ---
+// El HC-SR04 pierde ecos de forma intermitente, sobre todo con personas (ropa,
+// angulos). Para evitar falsos "sin presencia" se promedia y se aplica histeresis.
+#define PING_MUESTRAS 5           // pings por medicion (se toma la mediana)
+#define PING_GAP_MS 30            // separacion entre pings (evita ecos residuales)
+#define INTERVALO_PING_MS 300     // cadencia de muestreo de distancia
+#define AUSENCIA_CONFIRMACIONES 5 // lecturas de ausencia seguidas para confirmarla
+#define INTERVALO_DATOS_MS 3000   // cada cuanto se publica el set completo (con presencia)
+#define INTERVALO_ESTADO_MS 3000  // cada cuanto se reenvia el estado (sin presencia)
+
 // Cuanto tiempo se muestrea el microfono en cada lectura.
 // Mas tiempo da lecturas mas estables, pero hace el loop mas lento.
 #define VENTANA_RUIDO_MS 300
@@ -114,19 +124,62 @@ void loop()
   }
   mqtt.loop();
 
+  // Lectura instantanea (mediana de varios pings) y su interpretacion cruda.
   float distancia = medirDistancia();
-  bool presencia = hayPresencia(distancia);
+  bool lectura = hayPresencia(distancia);
+
+  // --- Histeresis ---
+  // La presencia se ACTIVA al instante (una sola lectura positiva basta).
+  // La ausencia solo se CONFIRMA tras varias lecturas seguidas sin presencia,
+  // asi un ping perdido aislado no genera un falso "sin presencia".
+  static bool presencia = false;
+  static int ausencias = 0;
+  bool cambio = false;
+  if (lectura)
+  {
+    ausencias = 0;
+    if (!presencia)
+    {
+      presencia = true;
+      cambio = true;
+    }
+  }
+  else if (presencia)
+  {
+    ausencias++;
+    if (ausencias >= AUSENCIA_CONFIRMACIONES)
+    {
+      presencia = false;
+      cambio = true;
+      ausencias = 0;
+    }
+  }
 
   Serial.println("---");
   Serial.print("Distancia : ");
   Serial.print(distancia, 1);
   Serial.print(" cm  -  ");
-  Serial.println(presencia ? "PRESENCIA DETECTADA" : "sin presencia");
+  Serial.print(presencia ? "PRESENCIA" : "sin presencia");
+  if (presencia && ausencias > 0)
+  {
+    Serial.print(" (confirmando ausencia ");
+    Serial.print(ausencias);
+    Serial.print("/");
+    Serial.print(AUSENCIA_CONFIRMACIONES);
+    Serial.print(")");
+  }
+  Serial.println();
+
+  static unsigned long ultimoDato = 0;
+  static unsigned long ultimoEstado = 0;
+  unsigned long ahora = millis();
 
   // Mientras no haya nadie, no tiene sentido leer ni enviar los demas sensores.
-  // El sistema solo mide distancia hasta que alguien se acerque.
-  if (presencia)
+  // El set completo se publica como mucho cada INTERVALO_DATOS_MS, o de inmediato
+  // si recien se detecto la presencia.
+  if (presencia && (cambio || ahora - ultimoDato >= INTERVALO_DATOS_MS))
   {
+    ultimoDato = ahora;
 
     float luz = medirLuz();
     Serial.print("Luz       : ");
@@ -207,16 +260,19 @@ void loop()
       publicarEstado(distancia, true);
     }
   }
-  else
+  else if (!presencia && (cambio || ahora - ultimoEstado >= INTERVALO_ESTADO_MS))
   {
-    // Sin presencia: se reporta el estado constantemente para que el dashboard
-    // sepa que el escritorio quedo libre y que los demas datos estan pausados.
+    // Sin presencia: se reporta el estado (al confirmarse la ausencia y luego
+    // periodicamente) para que el dashboard sepa que el escritorio quedo libre
+    // y que los demas datos estan pausados. No se reenvia en cada ciclo.
+    ultimoEstado = ahora;
     publicarEstado(distancia, false);
   }
 
-  // Sin presencia se muestrea rapido para no tardar en detectar
-  // cuando alguien llega. Con presencia se respeta el minimo del SPS30.
-  delay(presencia ? 3000 : 500);
+  // Cadencia fija de muestreo de distancia. El loop corre rapido para mantener
+  // la deteccion responsiva y aplicar la histeresis; las publicaciones pesadas
+  // se controlan por separado con millis() arriba.
+  delay(INTERVALO_PING_MS);
 }
 
 // Conecta al WiFi y espera hasta tener IP.
@@ -310,9 +366,9 @@ void publicarEstado(float distancia, bool presencia)
   Serial.println(ok ? "OK" : "FALLO");
 }
 
-// Dispara un pulso de 10us por TRIG y mide cuanto tarda en volver por ECHO.
+// Un solo ping del HC-SR04: dispara TRIG y mide el eco por ECHO.
 // Si no hay respuesta en 30ms (unos 500cm), pulseIn retorna 0.
-float medirDistancia()
+static float pingUnico()
 {
   digitalWrite(PIN_TRIG, LOW);
   delayMicroseconds(4);
@@ -322,9 +378,43 @@ float medirDistancia()
 
   long duracion = pulseIn(PIN_ECHO, HIGH, 30000);
 
-  // Velocidad del sonido a 20C: 0.0343 cm/us.
-  // Se divide entre 2 porque el pulso va y vuelve.
+  // Velocidad del sonido a 20C: 0.0343 cm/us. Se divide entre 2 (ida y vuelta).
   return duracion * 0.0343 / 2.0;
+}
+
+// Toma PING_MUESTRAS pings, descarta los timeouts (0) y devuelve la MEDIANA de
+// los validos. La mediana ignora los valores espurios (ecos perdidos o rebotes
+// raros) mucho mejor que un promedio. Si ningun ping recibe eco, devuelve 0.
+float medirDistancia()
+{
+  float lecturas[PING_MUESTRAS];
+  int validas = 0;
+
+  for (int i = 0; i < PING_MUESTRAS; i++)
+  {
+    float d = pingUnico();
+    if (d > 0)
+      lecturas[validas++] = d;
+    delay(PING_GAP_MS); // separacion entre pings para evitar ecos residuales
+  }
+
+  if (validas == 0)
+    return 0; // ningun eco: realmente no hay reflexion en rango
+
+  // Insertion sort (arreglo pequeño) para obtener la mediana.
+  for (int i = 1; i < validas; i++)
+  {
+    float k = lecturas[i];
+    int j = i - 1;
+    while (j >= 0 && lecturas[j] > k)
+    {
+      lecturas[j + 1] = lecturas[j];
+      j--;
+    }
+    lecturas[j + 1] = k;
+  }
+
+  return lecturas[validas / 2];
 }
 
 // Descarta el valor 0 que retorna pulseIn cuando hay timeout,
